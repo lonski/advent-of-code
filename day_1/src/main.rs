@@ -21,12 +21,7 @@ fn reverse_captcha(input: &String) -> (u32, u32) {
             sum_part_1 += n;
         }
         //Part two
-        let n_at_step_idx = if i + step < size {
-            i + step
-        } else {
-            (i + step) % size
-        };
-        if n == nth(input, n_at_step_idx) {
+        if n == nth(input, (i + step) % size) {
             sum_part_2 += n;
         }
     }
