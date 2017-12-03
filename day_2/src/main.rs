@@ -21,7 +21,6 @@ fn part_two(input: &String) -> u32 {
         .map(|values| divisable_tuple(&values))
         .map(|t| t.0 / t.1)
         .sum()
-    //.for_each(|v| println!("{:?}", v));
 }
 
 fn divisable_tuple(values: &Vec<u32>) -> (u32, u32) {
