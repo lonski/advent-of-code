@@ -35,7 +35,6 @@ fn part_two(input: u32) -> u32 {
             }
         }
     }
-
 }
 
 fn fill(x: i32, y: i32, grid: &mut HashMap<(i32, i32), u32>) -> u32 {
@@ -57,7 +56,6 @@ fn get_val(x: i32, y: i32, grid: &HashMap<(i32, i32), u32>) -> u32 {
     ].iter()
         .filter_map(|&(x_mod, y_mod)| grid.get(&(x + x_mod, y + y_mod)))
         .fold(0, |acc, &v| acc + v)
-
 }
 
 //--- part one stuff below
@@ -158,5 +156,4 @@ mod tests {
     fn part_two_test() {
         assert_eq!(part_two(312051), 312453);
     }
-
 }
