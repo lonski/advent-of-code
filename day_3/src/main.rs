@@ -38,12 +38,12 @@ fn part_two(input: u32) -> u32 {
 }
 
 fn fill(x: i32, y: i32, grid: &mut HashMap<(i32, i32), u32>) -> u32 {
-    let val = get_val(x, y, &grid);
+    let val = calc_val(x, y, &grid);
     grid.insert((x, y), val);
     *grid.get(&(x, y)).unwrap()
 }
 
-fn get_val(x: i32, y: i32, grid: &HashMap<(i32, i32), u32>) -> u32 {
+fn calc_val(x: i32, y: i32, grid: &HashMap<(i32, i32), u32>) -> u32 {
     vec![
         (-1, -1),
         (-1, 0),
