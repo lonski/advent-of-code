@@ -1,6 +1,64 @@
+use std::collections::HashMap;
+
 fn main() {
     println!("Part one: {}", part_one(312051));
+    println!("Part two: {}", part_two(312051));
 }
+
+fn part_two(input: u32) -> u32 {
+    let mut grid = HashMap::new();
+    let mut level = 0;
+    let mut size = 1;
+    grid.insert((0, 0), 1);
+
+    loop {
+        level += 1;
+        size += 2;
+        let (mut x, mut y) = (level, -1 * (level - 1));
+        let square_walks = vec![
+            (0..1, (0, 0)),
+            (1..size - 1, (0, 1)),
+            (1..size, (-1, 0)),
+            (1..size, (0, -1)),
+            (1..size, (1, 0)),
+        ];
+        for (range, (x_mod, y_mod)) in square_walks {
+            for _ in range.clone() {
+                x += x_mod;
+                y += y_mod;
+                let value = fill(x, y, &mut grid);
+                if value > input {
+                    return value;
+                }
+            }
+        }
+    }
+
+}
+
+fn fill(x: i32, y: i32, grid: &mut HashMap<(i32, i32), u32>) -> u32 {
+    let val = get_val(x, y, &grid);
+    grid.insert((x, y), val);
+    *grid.get(&(x, y)).unwrap()
+}
+
+fn get_val(x: i32, y: i32, grid: &HashMap<(i32, i32), u32>) -> u32 {
+    vec![
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (1, -1),
+        (0, -1),
+        (0, 1),
+        (1, 1),
+        (1, 0),
+    ].iter()
+        .filter_map(|&(x_mod, y_mod)| grid.get(&(x + x_mod, y + y_mod)))
+        .fold(0, |acc, &v| acc + v)
+
+}
+
+//--- part one stuff below
 
 fn part_one(input: u32) -> u32 {
     let square = Square::of(input);
@@ -106,4 +164,10 @@ mod tests {
         assert_eq!(part_one(1024), 31);
         assert_eq!(part_one(312051), 430);
     }
+
+    #[test]
+    fn part_two_test() {
+        assert_eq!(part_two(312051), 312453);
+    }
+
 }
