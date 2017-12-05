@@ -5,6 +5,8 @@ fn main() {
     println!("Part two: {}", part_two(312051));
 }
 
+//--- part two stuff below
+
 fn part_two(input: u32) -> u32 {
     let mut grid = HashMap::new();
     let mut level = 0;
@@ -96,37 +98,24 @@ impl Square {
         )
     }
 
-
     fn find_coords(&self, to_find: u32) -> (i32, i32) {
         let mut x = self.x_start;
         let mut y = self.y_start;
         let mut num = (self.size - 2).pow(2) + 1;
-        for _ in 1..self.size - 1 {
-            y += 1;
-            num += 1;
-            if num == to_find {
-                return (x, y);
-            }
-        }
-        for _ in 1..self.size {
-            y -= 1;
-            num += 1;
-            if num == to_find {
-                return (x, y);
-            }
-        }
-        for _ in 1..self.size {
-            x -= 1;
-            num += 1;
-            if num == to_find {
-                return (x, y);
-            }
-        }
-        for _ in 1..self.size {
-            x += 1;
-            num += 1;
-            if num == to_find {
-                return (x, y);
+        let square_walks = vec![
+            (1..self.size - 1, (0, 1)),
+            (1..self.size, (-1, 0)),
+            (1..self.size, (0, -1)),
+            (1..self.size, (1, 0)),
+        ];
+        for (range, (x_mod, y_mod)) in square_walks {
+            for _ in range.clone() {
+                x += x_mod;
+                y += y_mod;
+                num += 1;
+                if num == to_find {
+                    return (x, y);
+                }
             }
         }
         (self.x_start, self.y_start)
