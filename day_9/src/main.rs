@@ -5,7 +5,7 @@ fn main() {
     let mut file = File::open("input.txt").unwrap();
     let mut input = String::new();
     file.read_to_string(&mut input).unwrap();
-    println!("Part one: {:?}", solve(&input));
+    println!("(Part one, Part two): {:?}", solve(&input));
 }
 
 fn solve(input: &String) -> (u32, u32) {
