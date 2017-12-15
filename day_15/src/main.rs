@@ -1,5 +1,3 @@
-use std::cmp;
-
 fn main() {
     println!("Part one: {}", part_one(873, 583));
     println!("Part two: {}", part_two(873, 583));
@@ -18,8 +16,7 @@ fn part_one(g1_val: u64, g2_val: u64) -> usize {
     };
     (0..40000001)
         .map(|_| (g1.next(), g2.next()))
-        .map(|(v1, v2)| (lowest_16bits(v1), lowest_16bits(v2)))
-        .filter(|&(ref v1, ref v2)| v1 == v2)
+        .filter(|&(v1, v2)| v1 & 0xffff == v2 & 0xffff)
         .count()
 }
 
@@ -36,8 +33,7 @@ fn part_two(g1_val: u64, g2_val: u64) -> usize {
     };
     (0..5000001)
         .map(|_| (g1.next(), g2.next()))
-        .map(|(v1, v2)| (lowest_16bits(v1), lowest_16bits(v2)))
-        .filter(|&(ref v1, ref v2)| v1 == v2)
+        .filter(|&(v1, v2)| v1 & 0xffff == v2 & 0xffff)
         .count()
 }
 
@@ -55,11 +51,6 @@ impl Generator {
         }
         self.value
     }
-}
-
-fn lowest_16bits(val: u64) -> String {
-    let s = format!("{:016b}", val);
-    String::from(&s[s.len() - 16..])
 }
 
 #[cfg(test)]
