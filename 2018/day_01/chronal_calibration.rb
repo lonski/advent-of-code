@@ -1,6 +1,6 @@
 require 'set'
 
-changes = File.readlines('input.1').map(&:to_i)
+changes = File.readlines('input.txt').map(&:to_i)
 
 puts "First resulting frequency: #{changes.reduce(0, :+)}"
 

@@ -1,4 +1,4 @@
-ids = File.readlines 'input.1'
+ids = File.readlines 'input.txt'
 
 checksum = ids.map do |id| 
   counts = id.chars
