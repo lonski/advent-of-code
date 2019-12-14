@@ -1,3 +1,14 @@
+TRACE=false
+DEBUG=false
+
+def trace(msg)
+  puts msg if TRACE
+end
+
+def debug(msg)
+  puts msg if DEBUG
+end
+
 def float_equal?(f1,f2)
   (f2 - f1).abs <= 0.1
 end
@@ -7,14 +18,14 @@ def distance(p1,p2)
 end
 
 def on_line(a, b, start, goal)
-  #puts "#{start} #{goal}"
+  trace("\t\tONLINE a=#{a} b=#{b} s=#{start} e=#{goal}")
   if a == Float::INFINITY || a == -Float::INFINITY || b == Float::INFINITY || b == -Float::INFINITY || a.nan? || b.nan?
     dy = goal[1] - start[1]
     dx = goal[0] - start[0]
-    return goal[1] == start[0] if dy == 0
-    return goal[0] == start[0]
+    return goal[0] == start[0] if dy == 0
+    return goal[1] == start[1]
   end
-  #puts "LINE a=#{a} b=#{b} Y=#{a*goal[0].to_f + b} goal[1]=#{goal[1]} "
+  trace("\t\tLINE a=#{a} b=#{b} Y=#{a*goal[0].to_f + b} goal[1]=#{goal[1]} ")
   float_equal?(goal[1].to_f,  (a*goal[0].to_f + b))
 end
 
@@ -37,31 +48,50 @@ def part2
   
   map_points = (0..width-1).map {|x| (0..height-1).map{|y| [x,y] }}.flatten(1)
   asteroids = map_points.select{|x,y| map[y][x] != '.' }
+  counter = 0
 
   pos = [3,4]
 
-  (0..360).each do |degrees|
-    radians = degrees * Math::PI / 180
-    a = Math.tan(radians)
+  #get objects in quarter I
+  q1_objects = asteroids
+    .select{|ox, oy| ox >= pos[0] && oy < pos[1]}
+    .reject{|o| o == pos}
 
-    on_line_list = asteroids
-      .reject{|ast_p| ast_p == pos}
-      .select{|ast_p| on_line(a,0.0,pos,translate(pos, ast_p))}
-      .map{|ast_p| [distance(pos,ast_p),ast_p]}
-      .sort_by{|dist, ast_p| dist}
-      #group_by{|dist, ast_p| dist < 0}
-    
-    unless on_line_list.empty?
-      puts "deg=#{degrees} p=#{on_line_list.map{|dist, ast_p| ast_p}}"
+  #for each dx in (width - pos.x)
+  (0..(width-pos[0]-1)).each do |dx|
+
+    #find objects on given dx, sorted by y desc
+    obj_on_dx = q1_objects
+      .select{|ox, oy| ox - pos[0] == dx}
+      .sort_by{|ox, oy| -oy}
+
+    debug("dx=#{dx} objs=#{obj_on_dx.inspect}")
+
+    #for each object of above find all objects on the line
+    obj_on_dx.each do |x, y|
+      debug("  checking [#{x},#{y}]")
+      debug("  q1_objects=#{q1_objects.inspect}")
+      # calculate linear function factors
+      dy = y - pos[1]
+      dx = x - pos[0]
+      a = dy.to_f / dx.to_f
+      b = (pos[1]*x - y*pos[0]).to_f / (x - pos[0]).to_f
+      #find all other objects that are on the same line, sorted by distance asc
+      on_line_objs = q1_objects
+        .select{|o| r = on_line(a,b,[x,y],o); trace("\t\tONLINE RET = #{r}"); r}
+        .sort_by{|o| distance([x,y], o)}
+      debug("   #{[x,y].inspect} line: #{on_line_objs.inspect}")
+      #get closest object and vaporize
+      unless on_line_objs.empty?
+        to_vaporize = on_line_objs.first
+        counter += 1
+        asteroids = asteroids - [to_vaporize]
+        puts "Vaporized #{to_vaporize.inspect} counter=#{counter}"
+      end
     end
 
-    o1 = on_line(a, 0.0, pos, translate(pos, [1,0]))
-    o2 = on_line(a, 0.0, pos, translate(pos, [2,2]))
-
-    if o1 && o2
-      puts "d=#{degrees} o1=#{o1} o2=#{o2}"  
-    end
   end
+
 end
 
 part2
