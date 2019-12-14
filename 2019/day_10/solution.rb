@@ -69,9 +69,13 @@ def find_quarter_vectors(pos, objects, no)
       end
     end
     #sort by distance
+    vector_objs -= to_skip
     vector_objs = vector_objs.sort_by{|o| distance(pos, o)}
     unless vector_objs.empty?
       to_skip += vector_objs
+      #raise "XXXX" if a == -Float::INFINITY
+      a = -999 if a == Float::INFINITY
+      a = -999 if a == -Float::INFINITY
       vectors << [a, vector_objs]
     end
   end
@@ -81,12 +85,13 @@ end
 
 def part2
 
-  map = File.read('input_4').split("\n")
+  map = File.read('input_2').split("\n")
+  #map = File.read('input_5').split("\n")
   width = map[0].size
   height = map.size
-  #pos = [11,13]
+  pos = [11,13]
   #pos = [19,14]
-  pos = [8,3]
+  #pos = [8,3]
   map[pos[1]][pos[0]] = '@'
   
   asteroids = (0..width-1)
@@ -113,34 +118,42 @@ def part2
   q3_objects = asteroids.select{|ox, oy| ox <= pos[0] && oy > pos[1]}
   #q3_objects = asteroids.select{|ox, oy| ox < pos[0] && oy > pos[1]}
   vectors += find_quarter_vectors(pos, q3_objects,3)
+  #vectors.group_by{|a,v| a }
   #puts vectors.inspect
+  #puts vectors.map{|a,v| v}.flatten(1).include? [11,14]
+  #puts asteroids.include? [11,14]
+  #o = [11,14]
+  #puts "X #{o[0] <= pos[0]} #{o[1] > pos[1]}"
 
   #get objects in quarter IV
   q4_objects = asteroids.select{|ox, oy| ox < pos[0] && oy <= pos[1]}
   vectors += find_quarter_vectors(pos, q4_objects,4)
   #puts vectors.inspect
 
+  #alph = "abcdefghijklmnoprstuwxyz"
+  alph = "abcdefghijklmnoprstuwxyz".upcase
   while true
     vectors.each do |a,v|
       to_vaporize = v.shift 
       unless to_vaporize.nil?
         counter += 1
-        puts "Vaporized #{to_vaporize.inspect} counter=#{counter}"
-        #print "\r\e[A" + "\r\e[A"
+        puts "Vaporized #{to_vaporize.inspect} counter=#{counter} a=#{a} c=#{alph[(counter-1) % alph.size]}" 
         
-        map[to_vaporize[1]][to_vaporize[0]] = 'X'
+        map[to_vaporize[1]][to_vaporize[0]] = '.'# alph[counter-1]
+        #map[to_vaporize[1]][to_vaporize[0]] =  alph[(counter-1) % alph.size]
         puts map
         height.times { print "\r\e[A" }
         sleep 0.01
-        #raise '1' unless (counter == 1 && to_vaporize == [11,12]) || counter != 1
-        #raise '2' unless (counter == 2 && to_vaporize == [12,1]) || counter != 2
-        #raise '3' unless (counter == 3 && to_vaporize == [12,2]) || counter != 3
-        #raise '10' unless (counter == 10 && to_vaporize == [12,8]) || counter != 10
-        #raise '20' unless (counter == 20 && to_vaporize == [16,0]) || counter != 20
-        #raise '50' unless (counter == 50 && to_vaporize == [16,9]) || counter != 50
-        #raise '100' unless (counter == 100 && to_vaporize == [10,16]) || counter != 100
-        #raise '199' unless (counter == 199 && to_vaporize == [9,6]) || counter != 199
+        raise '1' unless (counter == 1 && to_vaporize == [11,12]) || counter != 1
+        raise '2' unless (counter == 2 && to_vaporize == [12,1]) || counter != 2
+        raise '3' unless (counter == 3 && to_vaporize == [12,2]) || counter != 3
+        raise '10' unless (counter == 10 && to_vaporize == [12,8]) || counter != 10
+        raise '20' unless (counter == 20 && to_vaporize == [16,0]) || counter != 20
+        raise '50' unless (counter == 50 && to_vaporize == [16,9]) || counter != 50
+        raise '100' unless (counter == 100 && to_vaporize == [10,16]) || counter != 100
+        raise '199' unless (counter == 199 && to_vaporize == [9,6]) || counter != 199
         map[to_vaporize[1]][to_vaporize[0]] = '.'
+        map[to_vaporize[1]][to_vaporize[0]] = '.'# alph[counter-1]
         if counter == 200
           puts "Vaporized #{to_vaporize.inspect} counter=#{counter}"
           exit 0
