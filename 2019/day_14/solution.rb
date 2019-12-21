@@ -1,6 +1,8 @@
+DEBUG = false
+
+$recipes = {}
 $warehouse = {}
 $used_ore = 0
-$recipes = {}
 
 class Node
   attr_accessor :name, :value, :nodes, :parent
@@ -15,28 +17,6 @@ class Node
     n = Node.new(name, value, self)
     nodes << n
     n
-  end
-
-  def find_node(name)
-    return self if name == @name
-    return nil if @nodes.empty?
-    @nodes.map{|n| n.find_node(name) }.reject(&:nil?)
-  end
-  
-  def calc_leaves
-    return [[@value, @name]] if @nodes.empty?
-    nodes.flat_map{|n| n.calc_leaves }.map{|val, nam| [val*@value, nam]}
-  end
-
-  def find_leaves
-    return self if @nodes.empty? 
-    @nodes.flat_map{|n| n.find_leaves}
-  end
-
-  def sum_by_name(name)
-    acc = @name == name ? @value : 0
-    acc += @nodes.map{|n| n.sum_by_name(name)}.reject(&:nil?).reduce(&:+) unless @nodes.empty?
-    acc
   end
 
   def produce
@@ -67,7 +47,7 @@ class Node
         to_produce = (needed.to_f / rec_res).ceil * rec_res.to_f
         ore_used = (to_produce / rec_res) * rec_ore_req
         $used_ore += ore_used
-        puts "\tProducing #{to_produce} #{@name} using #{ore_used} ore"
+        puts "\tProducing #{to_produce} #{@name} using #{ore_used} ore" if DEBUG
 
         #store overproduction in WH
         $warehouse[@name] += (to_produce - needed) if to_produce > needed
@@ -76,7 +56,7 @@ class Node
       else 
         to_produce = (needed.to_f / rec_res).ceil #* rec_res.to_f
 
-        puts "Producing #{to_produce * rec_res.to_f} #{@name} val=#{@value} rec_res=#{rec_res}"
+        puts "Producing #{to_produce * rec_res.to_f} #{@name} val=#{@value} rec_res=#{rec_res}" if DEBUG
         to_produce.to_i.times {|| @nodes.each(&:produce) }
         
         produced = to_produce * rec_res.to_f
@@ -99,9 +79,12 @@ def build_tree(node, ingridients)
   end
 end
 
-def run(filename)
-  $warehouse = {}
-  $used_ore = 0
+def run(filename, clean=true)
+  if clean
+    $warehouse = {}
+    $used_ore = 0
+  end
+
   input = File.read filename
   $recipes = input.split("\n")
     .map{|l| l.split ' => '}
@@ -119,17 +102,33 @@ def run(filename)
   
   
   tree.produce
-  puts "Leftovers: #{$warehouse.inspect}"
-  puts "Used ore: #{$used_ore}"
+  puts "Leftovers: #{$warehouse.inspect}" if DEBUG
+  puts "Used ore: #{$used_ore}" if DEBUG
 
   $used_ore.to_i
 end
 
-raise "\n\n\n\t!!!INCORRECT input1\n\n" unless run('input_1') == 31
-raise "\n\n\n\t!!!INCORRECT input2\n\n" unless run('input_2') == 165
-raise "\n\n\n\t!!!INCORRECT input0\n\n" unless run('input_0') == 13312
-raise "\n\n\n\t!!!INCORRECT input3\n\n" unless run('input_3') == 180697
-raise "\n\n\n\t!!!INCORRECT input4\n\n" unless run('input_4') == 2210736
+def part1
+  raise "\n\n\n\t!!!INCORRECT input1\n\n" unless run('input_1') == 31
+  raise "\n\n\n\t!!!INCORRECT input2\n\n" unless run('input_2') == 165
+  raise "\n\n\n\t!!!INCORRECT input0\n\n" unless run('input_0') == 13312
+  raise "\n\n\n\t!!!INCORRECT input3\n\n" unless run('input_3') == 180697
+  raise "\n\n\n\t!!!INCORRECT input4\n\n" unless run('input_4') == 2210736
+  
+  run('input_5')
+end
 
-run('input_5')
+def part2_bruteforce
+  trillion = 1000000000000
+  fuel = 0
+    
+  while $used_ore < trillion
+    run('input_5', false)
+    fuel += 1
+    puts "Fuel #{fuel} ore_left #{trillion - $used_ore}"
+  end
+end
+
+puts part1
+#part2_bruteforce
 
