@@ -1,11 +1,12 @@
+require 'colorize'
 require_relative '../intcpu.rb'
-require_relative '../board.rb'
 
 DEBUG = false
+$cnt = 0
 
 class Droid
 
-  START_POS = [40,40]
+  START_POS = [25,25]
 
   attr_accessor :oxygen_station
 
@@ -13,7 +14,7 @@ class Droid
     program = File.read fn
     @cpu = IntCpu.new(program)
 
-    map_size = 65
+    map_size = 50
     @map = map_size.times.map{ map_size.times.map { ' ' } }
     @pos = START_POS.dup
     set_tile(@pos, '.')
@@ -55,7 +56,6 @@ class Droid
   end
 
   def explore
-
     frontier = [@pos.dup]
     visited = []
 
@@ -68,10 +68,41 @@ class Droid
           
           visited << new_pos unless output.nil?
           frontier << new_pos unless output == 0
+          print_map
 
         end
       end
     end
+  end
+
+  def oxygen_fill(start)
+
+    counter = 0
+    @map[start[1]][start[0]] = 'O' 
+
+    frontier = [[start]]
+    while !frontier.flatten.empty?
+      current = frontier.shift
+
+      nb = current.flat_map{|p| get_neighbours(p) }.select{|n| @map[n[1]][n[0]] != 'O' }
+      nb.each{|n| @map[n[1]][n[0]] = 'O'}
+      print_map; sleep 0.001
+
+      frontier << nb
+      counter += 1
+    end
+
+    counter - 1
+  end
+
+  def draw_best_path(start, finish)
+    path = find_best_path(start, finish)
+    path.each do |p| 
+      @map[p[1]][p[0]] = '*'
+      print_map
+      sleep 0.01
+    end
+    path.size
   end
 
   def find_best_path(start, finish)
@@ -99,7 +130,6 @@ class Droid
       path << current
       current = came_from[current]
       if current.nil?
-        puts "FAILED TO FIND PATH"
         return []
       end
     end
@@ -131,30 +161,25 @@ class Droid
     raise "Wrong diff dx=#{dx} dy=#{dy}"
   end
 
-  def dir_to_pos(dir)
-    case dir
-    when 1
-      return [@pos[0], @pos[1] - 1]
-    when 2
-      return [@pos[0], @pos[1] + 1]
-    when 3
-      return [@pos[0] - 1, @pos[1]]
-    when 4
-      return [@pos[0] + 1, @pos[1]]
-    end
-  end
-
   def print_map
-    #(@map.size).times { print "\r\e[A" }
+    (@map.size).times { print "\r\e[A" }
     (0..@map.size-1).each do |y|
       row = @map[y]
       (0..row.size-1).each do |x|
         if [x,y] == @pos 
-          putc 'D'
+          print "D".red
         elsif [x,y] == @oxygen_station
-          putc 'S'
+          print "S".blue
         else
-          putc @map[y][x]
+          s = @map[y][x]
+          case s
+          when '*'
+            print s.to_s.yellow
+          when 'O'
+            print s.to_s.blue
+          else
+            print s
+          end
         end
       end
       puts
@@ -167,5 +192,6 @@ droid = Droid.new 'input_0'
 droid.explore
 droid.print_map
 
-puts "Part 1: #{droid.find_best_path(Droid::START_POS, droid.oxygen_station).size}"
-
+"Part 1: #{droid.draw_best_path(Droid::START_POS, droid.oxygen_station).size}"
+sleep 1
+"Part 2: #{droid.oxygen_fill(droid.oxygen_station)}"
