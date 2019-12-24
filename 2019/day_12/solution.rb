@@ -14,6 +14,10 @@ class Moon
   def state
     @position + @velocity
   end
+
+  def state_dim(i)
+    @position[i] + @velocity[i]
+  end
 end
 
 class MoonSimulation
@@ -21,7 +25,6 @@ class MoonSimulation
   def initialize(input_lines)
     @moons = input_lines.map{|l| Moon.new(l)}
     @states = []
-    @states << calc_state
   end
 
   def step(n)
@@ -32,19 +35,23 @@ class MoonSimulation
   end
 
   def find_repeated_state
-    initial_state = calc_state
+    initial = (0..2).map{|d| @moons.map{|m| m.state_dim(d) } }
+    phases = [0,0,0]
     counter = 0
+
     while true
       calculate_velocity
       apply_velocity
       counter += 1
-      #current_state = calc_state
-      break if calc_state == initial_state
-      #@states << current_state
-      puts counter if counter % 100000 == 0
+
+      (0..2).map{|d| @moons.map{|m| m.state_dim(d) } }.each_with_index do |current,i|
+        phases[i] = counter if current == initial[i] && phases[i] == 0
+      end
+
+      break if phases.none?{|v| v == 0}
     end
 
-    counter
+    phases.reduce(:lcm)
   end
 
   def apply_velocity
@@ -73,10 +80,6 @@ class MoonSimulation
 
   def total_energy
     @moons.map(&:energy).reduce(&:+)
-  end
-
-  def calc_state
-    @moons.map(&:state).reduce(&:+).to_s
   end
 
   def print
