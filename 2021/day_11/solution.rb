@@ -45,7 +45,7 @@ end
 def solve_p1
   map = File.read(ARGV[0]).split("\n").map{|l| l.chars.map(&:to_i) }
   flashes = 0
-  94.times do |i|
+  100.times do |i|
     flashes += simulate(map).size
   end
   
