@@ -99,7 +99,7 @@ fn main() {
                 .map(|c| c.to_digit(10).unwrap())
                 .collect::<Vec<u32>>()
         })
-        .collect();
+    .collect();
 
     part_one(map.clone());
     part_two(map.clone());
