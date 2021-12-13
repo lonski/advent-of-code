@@ -45,20 +45,19 @@ fn find_paths<'a>(
     }
 
     for exit in &current.exits {
-        let mut new_partial_paths = Vec::new();
-
         if exit == &current.name || exit == "start" {
             continue;
         }
 
-        for p in &partial_paths {
-            if count_small_visited_more_than_once(p) > max_small_visit {
+        let mut new_partial_paths = Vec::new();
+
+        for path in &partial_paths {
+            if count_small_visited_more_than_once(path) > max_small_visit {
                 continue;
             }
 
-            let mut expanded: Vec<&'a str> = p.clone();
+            let mut expanded = path.clone();
             expanded.push(exit);
-            //if it leads to end add final path
             if exit == "end" {
                 final_paths.push(expanded);
             } else {
@@ -66,7 +65,6 @@ fn find_paths<'a>(
             }
         }
 
-        // expand paths deeper for this exit
         if exit != "end" {
             final_paths.append(&mut find_paths(
                 caves.get(exit).unwrap(),
