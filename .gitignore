@@ -1,4 +1,5 @@
 *.un~
 target
 .idea
+.fleet
 Cargo.lock
