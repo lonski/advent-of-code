@@ -41,10 +41,8 @@ fn common_letter(strings: Vec<&str>) -> String {
 
     loop {
         // check out of range condition
-        for i in 0..indices.len() {
-            if indices[i] >= vectors[i].len() as u32 {
-                panic!("No common letter found in {:?}", strings);
-            }
+        if indices.iter().enumerate().any(|(i, val)| *val >= vectors[i].len() as u32) {
+            panic!("No common letter found in {:?}", strings);
         }
 
         // map current values
