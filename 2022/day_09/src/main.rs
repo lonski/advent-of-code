@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 use std::{env, fs};
 
+mod visualisation;
+
 fn move_head(&(cx, cy): &(i32, i32), dir: &str) -> (i32, i32) {
     match dir {
         "R" => (cx + 1, cy),
@@ -45,9 +47,10 @@ fn move_tail(&(tx, ty): &(i32, i32), &(hx, hy): &(i32, i32)) -> (i32, i32) {
     }
 }
 
-fn simulate_rope(rope_size: usize, moves: &Vec<(&str, i32)>) -> usize {
+fn simulate_rope(rope_size: usize, moves: &Vec<(&str, i32)>) -> (usize, Vec<Vec<(i32, i32)>>) {
     let mut tail_visited: HashSet<(i32, i32)> = HashSet::new();
-    let mut rope = vec![(0, 0); rope_size];
+    let mut snapshots: Vec<Vec<(i32, i32)>> = Vec::new();
+    let mut rope: Vec<(i32, i32)> = vec![(0, 0); rope_size];
     tail_visited.insert(*rope.last().unwrap());
 
     for &(dir, times) in moves {
@@ -58,10 +61,11 @@ fn simulate_rope(rope_size: usize, moves: &Vec<(&str, i32)>) -> usize {
                 rope[r] = segment_pos;
             }
             tail_visited.insert(*rope.last().unwrap());
+            snapshots.push(rope.clone());
         }
     }
 
-    tail_visited.len()
+    (tail_visited.len(), snapshots)
 }
 
 fn main() {
@@ -73,6 +77,9 @@ fn main() {
         .map(|mut s| (s.next().unwrap(), s.next().unwrap().parse::<i32>().unwrap()))
         .collect::<Vec<(&str, i32)>>();
 
-    println!("Short rope simulation: {:?}", simulate_rope(2, &moves));
-    println!("Long rope simulation: {:?}", simulate_rope(10, &moves));
+    println!("Short rope simulation: {:?}", simulate_rope(2, &moves).0);
+    let (visited, snapshots) = simulate_rope(10, &moves);
+    println!("Long rope simulation: {:?}", visited);
+
+    visualisation::run(snapshots);
 }
