@@ -47,8 +47,8 @@ fn print_screen(sprite_pos_by_cycle: &Vec<i32>) {
         .enumerate()
         .map(
             |(cycle, &sprite_pos)| match sprite_pos - (cycle % ROW_WIDTH) as i32 {
-                -1..=1 => '#',
-                _ => '.',
+                -1..=1 => '⭐',
+                _ => '🌲',
             },
         )
         .collect::<Vec<char>>()
