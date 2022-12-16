@@ -105,14 +105,12 @@ fn main() {
         println!("Covered on y=2000000: {}", merge_ranges(&ranges));
     }
 
-    {
-        let limit = 4000000;
-        for y in 0..=limit {
-            let mut ranges = covered_ranges(y, &sensors);
-            if let Some(x) = find_range_gap(&ranges) {
-                println!("Frequency: {}", x * limit + y);
-                break;
-            }
-        }
-    }
+    let limit = 4000000;
+    let freq = (0..=limit)
+        .map(|y| (y, covered_ranges(y, &sensors)))
+        .map(|(y, ranges)| (y, find_range_gap(&ranges)))
+        .find(|(_, gap)| gap.is_some())
+        .map(|(y, x)| x.unwrap() * limit + y)
+        .unwrap();
+    println!("Frequency: {}", freq);
 }
