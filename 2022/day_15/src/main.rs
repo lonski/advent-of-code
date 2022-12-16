@@ -1,4 +1,4 @@
-use std::cmp::{max, min};
+use std::cmp::max;
 use std::str::FromStr;
 use std::{env, fs};
 
@@ -7,7 +7,6 @@ use regex::Regex;
 #[derive(Debug)]
 struct Sensor {
     pos: (i64, i64),
-    closest_beacon: (i64, i64),
     beacon_distance: i64,
 }
 
@@ -42,7 +41,6 @@ impl FromStr for Sensor {
         );
         Ok(Sensor {
             pos,
-            closest_beacon,
             beacon_distance: distance(pos, closest_beacon),
         })
     }
@@ -68,7 +66,7 @@ fn merge_ranges(ranges: &Vec<(i64, i64)>) -> i64 {
     let mut x_max = ranges[0].1;
     for &(x1, x2) in ranges.iter().skip(1) {
         if x1 > x_max {
-            covered += (x2 - x1);
+            covered += x2 - x1;
         } else if x2 > x_max {
             covered += x2 - x_max;
         }
